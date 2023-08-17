@@ -1,0 +1,147 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+
+namespace YourNamespace
+{
+    /// <summary>
+    /// Represents a Database connection and provides CRUD operations.
+    /// 
+    /// Author: Mokter Hossain
+    /// Email: mo@gglink.uk
+    /// Website: www.gglink.uk
+    /// Github: https://github.com/moktermd08
+    /// Linkedin: https://www.linkedin.com/in/mr-mokter/
+    /// Twitter: https://twitter.com/moGGLink
+    /// </summary>
+    public class Database : IDisposable
+    {
+        private readonly string _connectionString;
+        private SqlConnection _connection;
+
+        /// <summary>
+        /// Initializes a new instance of the Database class with connection parameters.
+        /// </summary>
+        /// <param name="connectionString">The connection string to the SQL Server database.</param>
+        public Database(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
+        /// <summary>
+        /// Opens a connection to the database.
+        /// </summary>
+        /// <returns>True if the connection is successful; otherwise, False.</returns>
+        public bool Connect()
+        {
+            _connection = new SqlConnection(_connectionString);
+            try
+            {
+                _connection.Open();
+                return true;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine("SQL Connection Error: " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Closes the connection to the database.
+        /// </summary>
+        public void Disconnect()
+        {
+            if (_connection != null && _connection.State == ConnectionState.Open)
+            {
+                _connection.Close();
+            }
+        }
+
+        /// <summary>
+        /// Executes a SELECT query and returns the result as a DataTable.
+        /// </summary>
+        /// <param name="query">The SQL query string</param>
+        /// <returns>A DataTable containing the result set</returns>
+        public DataTable Select(string query)
+        {
+            using (var command = new SqlCommand(query, _connection))
+            {
+                using (var adapter = new SqlDataAdapter(command))
+                {
+                    var result = new DataTable();
+                    adapter.Fill(result);
+                    return result;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Inserts a new record into a table.
+        /// </summary>
+        /// <param name="table">The name of the table</param>
+        /// <param name="columns">The columns for the insert</param>
+        /// <param name="values">The values for the insert</param>
+        /// <returns>True if the insert was successful; otherwise, False.</returns>
+        public bool Insert(string table, string columns, string values)
+        {
+            var query = $"INSERT INTO {table} ({columns}) VALUES ({values})";
+            return ExecuteNonQuery(query);
+        }
+
+        /// <summary>
+        /// Updates records in a table.
+        /// </summary>
+        /// <param name="table">The name of the table</param>
+        /// <param name="setClause">The SET clause for the update</param>
+        /// <param name="whereClause">The WHERE clause for the update</param>
+        /// <returns>True if the update was successful; otherwise, False.</returns>
+        public bool Update(string table, string setClause, string whereClause)
+        {
+            var query = $"UPDATE {table} SET {setClause} WHERE {whereClause}";
+            return ExecuteNonQuery(query);
+        }
+
+        /// <summary>
+        /// Deletes records from a table.
+        /// </summary>
+        /// <param name="table">The name of the table</param>
+        /// <param name="whereClause">The WHERE clause for the delete</param>
+        /// <returns>True if the delete was successful; otherwise, False.</returns>
+        public bool Delete(string table, string whereClause)
+        {
+            var query = $"DELETE FROM {table} WHERE {whereClause}";
+            return ExecuteNonQuery(query);
+        }
+
+        /// <summary>
+        /// Executes an SQL query that does not return a result set.
+        /// </summary>
+        /// <param name="query">The SQL query string</param>
+        /// <returns>True if the query was executed successfully; otherwise, False.</returns>
+        private bool ExecuteNonQuery(string query)
+        {
+            using (var command = new SqlCommand(query, _connection))
+            {
+                try
+                {
+                    command.ExecuteNonQuery();
+                    return true;
+                }
+                catch (SqlException ex)
+                {
+                    Console.WriteLine("SQL Query Error: " + ex.Message);
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Implements the IDisposable interface to allow for using statement support and manual resource management.
+        /// </summary>
+        public void Dispose()
+        {
+            Disconnect();
+        }
+    }
+}
