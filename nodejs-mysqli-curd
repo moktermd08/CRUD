@@ -1,0 +1,182 @@
+const mysql = require('mysql');
+
+/**
+ * Database class
+ *
+ * Provides functionalities for database interactions.
+ * @author Mokter Hossain
+ * @email mo@gglink.uk
+ * @website www.gglink.uk
+ * @github https://github.com/moktermd08
+ * @linkedin https://www.linkedin.com/in/mr-mokter/
+ * @twitter https://twitter.com/moGGLink
+ */
+class Database {
+    constructor() {
+        this.host = "localhost";
+        this.user = "user";
+        this.password = "password";
+        this.database = "database";
+        this.connection = null;
+    }
+
+    /**
+     * Establishes a database connection.
+     * @returns {Promise<Boolean>} True on successful connection, False on failure
+     * @throws {Error} If connection to the database fails
+     */
+    async connect() {
+        return new Promise((resolve, reject) => {
+            this.connection = mysql.createConnection({
+                host: this.host,
+                user: this.user,
+                password: this.password,
+                database: this.database
+            });
+
+            this.connection.connect(error => {
+                if (error) {
+                    reject(new Error('Failed to connect to the database: ' + error.message));
+                } else {
+                    resolve(true);
+                }
+            });
+        });
+    }
+
+    /**
+     * Closes the database connection.
+     * @returns {Promise<Boolean>} True on success, False on failure
+     */
+    async disconnect() {
+        return new Promise((resolve, reject) => {
+            if (this.connection) {
+                this.connection.end(error => {
+                    if (error) {
+                        reject(new Error('Failed to disconnect from the database: ' + error.message));
+                    } else {
+                        resolve(true);
+                    }
+                });
+            } else {
+                resolve(false);
+            }
+        });
+    }
+
+    /**
+     * Executes a SELECT query.
+     * @param {string} table The name of the table.
+     * @param {string} [columns='*'] The columns to select.
+     * @param {string} [where] The WHERE clause.
+     * @returns {Promise<Array>} The result rows.
+     */
+    async select(table, columns = '*', where = null) {
+        return new Promise((resolve, reject) => {
+            let sql = `SELECT ${columns} FROM ${table}`;
+            if (where !== null) {
+                sql += ` WHERE ${where}`;
+            }
+            
+            this.connection.query(sql, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    }
+
+    /**
+     * Inserts a new record into a table.
+     * @param {string} table The name of the table.
+     * @param {Object} data The data to insert.
+     * @returns {Promise<Object>} The result of the insertion.
+     */
+    async insert(table, data) {
+        return new Promise((resolve, reject) => {
+            const sql = `INSERT INTO ${table} SET ?`;
+            this.connection.query(sql, data, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    }
+
+    /**
+     * Updates records in a table.
+     * @param {string} table The name of the table.
+     * @param {Object} data The data to update.
+     * @param {string} where The WHERE clause.
+     * @returns {Promise<Object>} The result of the update.
+     */
+    async update(table, data, where) {
+        return new Promise((resolve, reject) => {
+            const sql = `UPDATE ${table} SET ? WHERE ${where}`;
+            this.connection.query(sql, data, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    }
+
+    /**
+     * Deletes records from a table.
+     * @param {string} table The name of the table.
+     * @param {string} where The WHERE clause.
+     * @returns {Promise<Object>} The result of the deletion.
+     */
+    async delete(table, where) {
+        return new Promise((resolve, reject) => {
+            const sql = `DELETE FROM ${table} WHERE ${where}`;
+            this.connection.query(sql, (error, results) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(results);
+                }
+            });
+        });
+    }
+}
+
+module.exports = Database;
+
+
+/* Example use * /
+(async () => {
+    const db = new Database();
+
+    try {
+        await db.connect();
+
+        // Insert
+        const insertData = { name: 'John Doe', age: 30 };
+        const insertResult = await db.insert('users', insertData);
+        console.log('Insert Result:', insertResult);
+
+        // Select
+        const users = await db.select('users', '*', 'age > 20');
+        console.log('Users:', users);
+
+        // Update
+        const updateData = { age: 31 };
+        const updateResult = await db.update('users', updateData, 'name = "John Doe"');
+        console.log('Update Result:', updateResult);
+
+        // Delete
+        const deleteResult = await db.delete('users', 'age < 20');
+        console.log('Delete Result:', deleteResult);
+
+        await db.disconnect();
+    } catch (error) {
+        console.error('Database Error:', error.message);
+    }
+})();
