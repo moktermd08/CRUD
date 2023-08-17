@@ -1,0 +1,138 @@
+package com.gglink;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Database class.
+ * Provides functionalities for database interactions.
+ *
+ * @author Mokter Hossain
+ * @email mo@gglink.uk
+ * @website www.gglink.uk
+ * @github https://github.com/moktermd08
+ * @linkedin https://www.linkedin.com/in/mr-mokter/
+ * @twitter https://twitter.com/moGGLink
+ */
+public class Database {
+
+    private final String host = "localhost";
+    private final String user = "user";
+    private final String password = "password";
+    private final String database = "database";
+    private Connection connection;
+
+    /**
+     * Establishes a database connection.
+     *
+     * @return True on successful connection, False on failure
+     * @throws SQLException If connection to the database fails
+     */
+    public boolean connect() throws SQLException {
+        try {
+            this.connection = DriverManager.getConnection(
+                    "jdbc:mysql://" + this.host + "/" + this.database,
+                    this.user,
+                    this.password
+            );
+            return true;
+        } catch (SQLException e) {
+            throw new SQLException("Failed to connect to the database: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Closes the database connection.
+     *
+     * @return True on success, False on failure
+     * @throws SQLException If disconnecting from the database fails
+     */
+    public boolean disconnect() throws SQLException {
+        try {
+            if (this.connection != null) {
+                this.connection.close();
+                return true;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new SQLException("Failed to disconnect from the database: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Executes a SELECT query.
+     *
+     * @param table   The name of the table.
+     * @param columns The columns to select.
+     * @param where   The WHERE clause, or null if not needed.
+     * @return The result rows as a List of ResultSet objects.
+     * @throws SQLException If the SELECT query fails
+     */
+    public List<ResultSet> select(String table, String columns, String where) throws SQLException {
+        String query = "SELECT " + columns + " FROM " + table;
+        if (where != null) {
+            query += " WHERE " + where;
+        }
+        try (Statement stmt = this.connection.createStatement()) {
+            ResultSet rs = stmt.executeQuery(query);
+            List<ResultSet> results = new ArrayList<>();
+            while (rs.next()) {
+                results.add(rs);
+            }
+            return results;
+        } catch (SQLException e) {
+            throw new SQLException("Failed to execute SELECT query: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Inserts a new record into a table.
+     *
+     * @param table  The name of the table.
+     * @param values The data to insert.
+     * @throws SQLException If the INSERT query fails
+     */
+    public void insert(String table, String columns, String values) throws SQLException {
+        String query = "INSERT INTO " + table + " (" + columns + ") VALUES (" + values + ")";
+        try (Statement stmt = this.connection.createStatement()) {
+            stmt.executeUpdate(query);
+        } catch (SQLException e) {
+            throw new SQLException("Failed to execute INSERT query: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Updates records in a table.
+     *
+     * @param table The name of the table.
+     * @param set   The data to update.
+     * @param where The WHERE clause.
+     * @throws SQLException If the UPDATE query fails
+     */
+    public void update(String table, String set, String where) throws SQLException {
+        String query = "UPDATE " + table + " SET " + set + " WHERE " + where;
+        try (Statement stmt = this.connection.createStatement()) {
+            stmt.executeUpdate(query);
+        } catch (SQLException e) {
+            throw new SQLException("Failed to execute UPDATE query: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Deletes records from a table.
+     *
+     * @param table The name of the table.
+     * @param where The WHERE clause.
+     * @throws SQLException If the DELETE query fails
+     */
+    public void delete(String table, String where) throws SQLException {
+        String query = "DELETE FROM " + table + " WHERE " + where;
+        try (Statement stmt = this.connection.createStatement()) {
+            stmt.executeUpdate(query);
+        } catch (SQLException e) {
+            throw new SQLException("Failed to execute DELETE query: " + e.getMessage());
+        }
+    }
+}
+
