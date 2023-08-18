@@ -87,6 +87,3 @@ This README.md file is formatted in Markdown and includes:
 - Twitter: [moGGLink](https://twitter.com/moGGLink)
 
 Feel free to save this content into a `README.md` file in the root directory of your project, and modify it as needed.
-
-
-```
