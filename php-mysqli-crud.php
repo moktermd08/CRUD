@@ -197,3 +197,43 @@ class Database
     }
 }
 
+
+// example use of the above class 
+use GGlink\Database\Database;
+
+// Create a new instance of the Database class
+$db = new Database();
+
+try {
+    // Connect to the database
+    $db->connect();
+    
+    // Example 1: Insert a new user into the users table
+    $columns = ['username', 'email', 'password'];
+    $values = ['john_doe', 'john.doe@example.com', 'password123'];
+    $db->insert('users', $values, $columns);
+    echo "Insert: New user added.\n";
+    
+    // Example 2: Select all users from the users table
+    $result = $db->select('users');
+    echo "Select: List of all users:\n";
+    while ($user = $result->fetch_assoc()) {
+        echo "ID: " . $user['id'] . " | Username: " . $user['username'] . " | Email: " . $user['email'] . "\n";
+    }
+    
+    // Example 3: Update the email of a specific user in the users table (e.g., user with ID 1)
+    $db->update('users', "email='new.email@example.com'", "id=1");
+    echo "Update: Email of user with ID 1 updated.\n";
+    
+    // Example 4: Delete a specific user from the users table (e.g., user with ID 1)
+    $db->delete('users', "id=1");
+    echo "Delete: User with ID 1 deleted.\n";
+    
+} catch (Exception $e) {
+    // Handle exceptions (e.g., connection errors, query errors)
+    echo "An error occurred: " . $e->getMessage();
+} finally {
+    // Disconnect from the database
+    $db->disconnect();
+    echo "Disconnected from the database.\n";
+}
