@@ -1,8 +1,7 @@
 # CRUD Library
 
 ## Introduction
-
-` Database Library` is a Kotlin-based library that simplifies interactions with MySQL databases. It is designed to make it easier to establish connections, execute queries, and perform other common database tasks. The library also includes input sanitization methods to help secure your application from common vulnerabilities such as SQL injection.
+CRUD - library : with some of the most popular languages and mysql 
 
 Created by Mokter Hossain.
 
