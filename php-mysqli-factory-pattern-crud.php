@@ -30,7 +30,21 @@ class Database
 
 
   
-  private function __construct(
+   /**
+     * Database constructor.
+     *
+     * Initialize the Database object with the provided parameters and establish a connection.
+     * Connection is established immediately upon object creation.
+     *
+     * @param string $host The hostname of the MySQL server
+     * @param string $user The username used to connect to the MySQL server
+     * @param string $password The password used to authenticate the user
+     * @param string $database The name of the database to connect to
+     * @param mysqli|null $connection An existing mysqli connection object (default is null)
+     *
+     * @throws Exception If the connection to the MySQL server fails
+     */
+    private function __construct(
         private string $host,
         private string $user,
         private string $password,
@@ -39,6 +53,7 @@ class Database
     ) {
         $this->connect();
     }
+
     
 
     /**
