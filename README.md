@@ -71,9 +71,6 @@ Describe your Suggestion: In the issue, explain what you think should be improve
 ##  License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-```
-
-
 This README.md file is formatted in Markdown and includes:
 
 - A project title and introductory description.
